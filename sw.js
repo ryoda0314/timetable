@@ -1,5 +1,5 @@
 // データを更新したら VERSION を上げる
-const VERSION = "v6";
+const VERSION = "v7";
 const FILES = ["./", "index.html", "style.css", "app.js", "data.js", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => {

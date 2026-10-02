@@ -138,6 +138,11 @@ document.getElementById("tabs").addEventListener("click", (e) => {
 
 render(loadTab());
 
+// iOS Safari は viewport の指定を無視して拡大するので、ジェスチャー自体を止める
+for (const type of ["gesturestart", "gesturechange", "gestureend"]) {
+  document.addEventListener(type, (e) => e.preventDefault(), { passive: false });
+}
+
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }

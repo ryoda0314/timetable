@@ -37,7 +37,12 @@
 
 * { box-sizing: border-box; }
 
-html, body { margin: 0; }
+html, body {
+  margin: 0;
+  overflow-x: clip;
+  overscroll-behavior: none;
+  touch-action: pan-y; /* ピンチ拡大とダブルタップ拡大を止める */
+}
 
 body {
   background: var(--bg);
