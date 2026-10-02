@@ -1,0 +1,194 @@
+:root {
+  --bg: #f6f7f5;
+  --surface: #ffffff;
+  --cell: #eef0ec;
+  --text: #1d2125;
+  --sub: #5f666d;
+  --line: #dde1dc;
+  --accent: #2f7d5b;
+  --accent-soft: #e2efe8;
+  --tint: 13%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #16181a;
+    --surface: #1f2225;
+    --cell: #1b1e20;
+    --text: #e7e9ea;
+    --sub: #9aa1a7;
+    --line: #2d3236;
+    --accent: #5bb38a;
+    --accent-soft: #23362d;
+    --tint: 22%;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #16181a;
+  --surface: #1f2225;
+  --cell: #1b1e20;
+  --text: #e7e9ea;
+  --sub: #9aa1a7;
+  --line: #2d3236;
+  --accent: #5bb38a;
+  --accent-soft: #23362d;
+  --tint: 22%;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-text-size-adjust: 100%;
+}
+
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: calc(env(safe-area-inset-top) + 12px) 16px 12px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+h1 { margin: 0; font-size: 20px; font-weight: 700; }
+
+.tabs {
+  display: flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--cell);
+  border: 1px solid var(--line);
+}
+.tabs button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--sub);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.tabs button[aria-selected="true"] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .12);
+}
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px 16px calc(env(safe-area-inset-bottom) + 32px);
+}
+
+.meta { margin: 0 0 12px; color: var(--sub); font-size: 13px; }
+
+/* 時間割グリッド */
+.grid {
+  display: grid;
+  grid-template-columns: 34px repeat(5, minmax(0, 1fr));
+  grid-auto-rows: auto;
+  gap: 3px;
+}
+.grid .day {
+  text-align: center;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 6px 0;
+  border-radius: 8px;
+}
+.grid .day.today { background: var(--accent); color: #fff; }
+
+.grid .period {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 112px;
+  color: var(--sub);
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
+}
+.grid .period b { color: var(--text); font-size: 14px; margin-bottom: 2px; }
+
+.grid .empty { background: var(--cell); border-radius: 8px; }
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 6px 4px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--c) var(--tint), var(--surface));
+  border: 1px solid color-mix(in srgb, var(--c) 35%, var(--surface));
+  border-top: 4px solid var(--c);
+  overflow: hidden;
+}
+.card .code { color: color-mix(in srgb, var(--c) 80%, var(--text)); font-size: 11px; font-weight: 700; letter-spacing: .02em; }
+.card .name {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  word-break: keep-all;
+  line-break: strict;
+  overflow-wrap: anywhere;
+}
+.card .room {
+  color: var(--sub);
+  font-size: 10.5px;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.card.long { justify-content: center; }
+
+.card.tentative, .card.either {
+  border-style: dashed;
+  border-top-style: solid;
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 6%, var(--surface));
+}
+.card .flag {
+  align-self: flex-start;
+  font-size: 9.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 0 3px;
+  border-radius: 4px;
+  border: 1px solid var(--sub);
+  color: var(--sub);
+}
+
+/* 履修科目リスト */
+h2 { font-size: 17px; margin: 28px 0 10px; }
+
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.list li {
+  display: grid;
+  grid-template-columns: 8px 1fr;
+  column-gap: 12px;
+  align-items: start;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.list .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; background: var(--c); }
+.list .title { font-weight: 600; }
+.list .flag { font-size: 11px; color: var(--sub); border: 1px solid var(--sub); border-radius: 4px; padding: 0 4px; margin-left: 6px; vertical-align: 2px; }
+.list .detail { color: var(--sub); font-size: 13px; margin-top: 2px; }
