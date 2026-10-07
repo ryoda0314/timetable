@@ -28,7 +28,7 @@ function breakable(s) {
   return units(s).map(esc).join("<wbr>");
 }
 
-// コマの中では末尾の（…）と「講義室」を省く。履修科目リストには全部出す
+// コマの中では末尾の（…）と「講義室」「大会議室」を省く。履修科目リストには全部出す
 function shortName(name) {
   return name.replace(/（[^（）]*）$/, "");
 }
@@ -56,6 +56,63 @@ function colorMap(person) {
   return map;
 }
 
+// 確認用: URL に ?t=2026-10-07T13:40 を付けるとその時刻として表示する
+function now() {
+  const t = new URLSearchParams(location.search).get("t");
+  const d = t ? new Date(t) : new Date();
+  return isNaN(d) ? new Date() : d;
+}
+
+function toMin(hm) {
+  const [h, m] = hm.split(":").map(Number);
+  return h * 60 + m;
+}
+
+// その時刻に受けている授業、なければ今日の次の授業
+function statusAt(person, date) {
+  const day = date.getDay() - 1;
+  const m = date.getHours() * 60 + date.getMinutes();
+  const today = person.classes
+    .filter((c) => c.day === day)
+    .map((c) => ({ c, start: person.periods[c.from - 1].start, end: person.periods[c.to - 1].end }))
+    .sort((a, b) => toMin(a.start) - toMin(b.start));
+  const current = today.find((x) => toMin(x.start) <= m && m < toMin(x.end));
+  if (current) return { kind: "in", ...current, left: toMin(current.end) - m };
+  const next = today.find((x) => toMin(x.start) > m);
+  if (next) return { kind: today.some((x) => toMin(x.end) <= m) ? "break" : "before", ...next, until: toMin(next.start) - m };
+  return { kind: today.length ? "done" : "none" };
+}
+
+function duration(min) {
+  const h = Math.floor(min / 60), m = min % 60;
+  return h ? (m ? `${h}時間${m}分` : `${h}時間`) : `${m}分`;
+}
+
+function renderNow(activeId) {
+  const date = now();
+  const hm = `${date.getHours()}:${String(date.getMinutes()).padStart(2, "0")}`;
+  const rows = PEOPLE.map((p) => {
+    const s = statusAt(p, date);
+    const color = s.c ? colorMap(p).get(s.c.name) : "var(--line)";
+    let main, sub = "";
+    if (s.kind === "in") {
+      main = esc(shortName(s.c.name));
+      sub = `${esc(s.c.room)} · ${s.end}まで（あと${duration(s.left)}）`;
+    } else if (s.kind === "break" || s.kind === "before") {
+      main = s.kind === "before" ? "授業前" : s.until <= 20 ? "休み時間" : "空きコマ";
+      sub = `次 ${s.start}〜 ${esc(shortName(s.c.name))}（${esc(s.c.room)}）`;
+    } else {
+      main = s.kind === "done" ? "今日の授業は終わり" : "今日は授業なし";
+    }
+    const badge = s.kind === "in" ? '<span class="badge">授業中</span>' : "";
+    return `<button class="now-row${s.kind === "in" ? " in" : ""}${p.id === activeId ? " active" : ""}" data-id="${p.id}" style="--c:${color}">`
+      + `<span class="who">${esc(p.label)}</span>`
+      + `<span class="what"><span class="main">${main}${badge}</span>${sub ? `<span class="sub">${sub}</span>` : ""}</span>`
+      + `</button>`;
+  }).join("");
+  document.getElementById("now").innerHTML = `<div class="now-head">いま <time>${hm}</time></div>${rows}`;
+}
+
 function slotText(c) {
   return c.from === c.to ? `${DAYS[c.day]}${c.from}` : `${DAYS[c.day]}${c.from}-${c.to}`;
 }
@@ -69,7 +126,8 @@ function renderTabs(activeId) {
 
 function renderGrid(person, colors) {
   const grid = document.getElementById("grid");
-  const today = new Date().getDay() - 1; // 月=0
+  const today = now().getDay() - 1; // 月=0
+  const current = statusAt(person, now());
   const n = person.periods.length;
   let html = '<div></div>';
   DAYS.forEach((d, i) => {
@@ -85,11 +143,12 @@ function renderGrid(person, colors) {
     for (let k = c.from; k <= c.to; k++) filled[c.day][k] = true;
     const status = c.status ? ` ${c.status}` : "";
     const long = c.to > c.from ? " long" : "";
-    html += `<div class="card${status}${long}" style="grid-column:${c.day + 2};grid-row:${c.from + 1} / ${c.to + 2};--c:${colors.get(c.name)}">`
+    const isNow = current.kind === "in" && current.c === c ? " now" : "";
+    html += `<div class="card${status}${long}${isNow}" style="grid-column:${c.day + 2};grid-row:${c.from + 1} / ${c.to + 2};--c:${colors.get(c.name)}">`
       + (c.status ? `<span class="flag">${STATUS_LABEL[c.status]}</span>` : "")
-      + (c.code ? `<span class="code">${esc(c.code)}</span>` : "")
+      + (c.code ? `<span class="code">${esc(c.code.split(".").pop())}</span>` : "")
       + `<span class="name">${breakable(shortName(c.name))}</span>`
-      + `<span class="room">${breakable(c.room.replace(/講義室$/, ""))}</span>`
+      + `<span class="room">${breakable(c.room.replace(/(講義室|大会議室)$/, ""))}</span>`
       + `</div>`;
   }
 
@@ -122,21 +181,32 @@ function render(id) {
   const person = PEOPLE.find((p) => p.id === id);
   const colors = colorMap(person);
   renderTabs(id);
+  renderNow(id);
   document.getElementById("meta").textContent = `${person.school} · ${person.term}`;
   renderGrid(person, colors);
   renderList(person, colors);
 }
 
-document.getElementById("tabs").addEventListener("click", (e) => {
+let activeId = loadTab();
+
+function select(e) {
   const btn = e.target.closest("button[data-id]");
   if (!btn) return;
-  const id = btn.dataset.id;
-  saveTab(id);
-  history.replaceState(null, "", "#" + id);
-  render(id);
-});
+  activeId = btn.dataset.id;
+  saveTab(activeId);
+  history.replaceState(null, "", location.search + "#" + activeId);
+  render(activeId);
+}
+document.getElementById("tabs").addEventListener("click", select);
+document.getElementById("now").addEventListener("click", select);
 
-render(loadTab());
+render(activeId);
+
+// 時刻が進んだら「いま」と授業中の表示を更新する
+setInterval(() => render(activeId), 30 * 1000);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") render(activeId);
+});
 
 // iOS Safari は viewport の指定を無視して拡大するので、ジェスチャー自体を止める
 for (const type of ["gesturestart", "gesturechange", "gestureend"]) {

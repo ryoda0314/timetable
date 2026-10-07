@@ -99,6 +99,46 @@ main {
   padding: 12px 16px calc(env(safe-area-inset-bottom) + 32px);
 }
 
+/* いま */
+.now {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.now-head { color: var(--sub); font-size: 13px; font-weight: 600; }
+.now-head time { color: var(--text); font-variant-numeric: tabular-nums; margin-left: 4px; }
+.now-row {
+  appearance: none;
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--c);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.now-row.in { background: color-mix(in srgb, var(--c) var(--tint), var(--surface)); }
+.now-row.active { box-shadow: 0 0 0 1.5px var(--text) inset; }
+.now-row .who { font-weight: 700; font-size: 14px; }
+.now-row .what { display: grid; gap: 2px; min-width: 0; }
+.now-row .main { font-weight: 600; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.now-row .sub { color: var(--sub); font-size: 12.5px; }
+.badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--c);
+  color: #fff;
+}
+
 .meta { margin: 0 0 12px; color: var(--sub); font-size: 13px; }
 
 /* 時間割グリッド */
@@ -161,6 +201,7 @@ main {
   overflow-wrap: anywhere;
 }
 .card.long { justify-content: center; }
+.card.now { box-shadow: 0 0 0 2px var(--c); }
 
 .card.tentative, .card.either {
   border-style: dashed;
