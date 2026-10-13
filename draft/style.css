@@ -1,0 +1,246 @@
+:root {
+  --bg: #ffffff;
+  --panel: #f5f6f7;
+  --slot: rgba(24, 28, 32, .045);
+  --text: #1a1c1e;
+  --sub: #687078;
+  --faint: #a2a8ae;
+  --line: #e7e9ec;
+  --accent: #1f8a5b;
+  --fill: 16%;      /* 授業カードの塗りの濃さ */
+  --ink-mix: 62%;   /* 授業名の文字色（科目の色をどれだけ残すか） */
+  --ink-base: #000;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141416;
+    --panel: #1d1e21;
+    --slot: rgba(255, 255, 255, .05);
+    --text: #eceef0;
+    --sub: #9aa1a8;
+    --faint: #62676d;
+    --line: #2a2c30;
+    --accent: #4cc38a;
+    --fill: 26%;
+    --ink-mix: 50%;
+    --ink-base: #fff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141416;
+  --panel: #1d1e21;
+  --slot: rgba(255, 255, 255, .05);
+  --text: #eceef0;
+  --sub: #9aa1a8;
+  --faint: #62676d;
+  --line: #2a2c30;
+  --accent: #4cc38a;
+  --fill: 26%;
+  --ink-mix: 50%;
+  --ink-base: #fff;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  overflow-x: clip;
+  overscroll-behavior: none;
+  touch-action: pan-y; /* ピンチ拡大とダブルタップ拡大を止める */
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic UI", Meiryo, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+html:lang(ko) body {
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Hiragino Sans", sans-serif;
+}
+
+button { font: inherit; color: inherit; }
+
+/* 見出しとタブ */
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: calc(env(safe-area-inset-top) + 10px) 12px 8px;
+  background: var(--bg);
+}
+.top > * { max-width: 640px; margin-inline: auto; }
+.top-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: .02em; }
+.meta-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 2px; }
+.meta { margin: 0; min-width: 0; font-size: 12px; color: var(--sub); }
+.lang {
+  appearance: none;
+  flex: none;
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--sub);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabs { display: flex; padding: 3px; border-radius: 10px; background: var(--panel); }
+.tabs button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--sub);
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.tabs button[aria-selected="true"] {
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+}
+
+main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 8px calc(env(safe-area-inset-bottom) + 32px);
+}
+
+/* いま */
+.now {
+  display: grid;
+  margin: 2px 4px 12px;
+  padding: 8px 10px 4px;
+  border-radius: 12px;
+  background: var(--panel);
+}
+.now-head {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--sub);
+}
+.now-head time { color: var(--text); font-variant-numeric: tabular-nums; }
+.now-row {
+  appearance: none;
+  display: grid;
+  grid-template-columns: minmax(56px, auto) 1fr auto;
+  align-items: baseline;
+  gap: 8px;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.now-row + .now-row { border-top: 1px solid var(--line); }
+.who { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.who::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px var(--faint);
+}
+.now-row.in .who::before { background: var(--c); box-shadow: none; }
+.what { min-width: 0; font-size: 13px; line-height: 1.45; }
+.what .dim { color: var(--sub); }
+.sep { margin: 0 4px; color: var(--faint); }
+.nw { white-space: nowrap; }
+.when { font-size: 12px; color: var(--sub); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* 時間割表 */
+.grid {
+  display: grid;
+  grid-template-columns: 28px repeat(5, minmax(0, 1fr));
+  gap: 2px;
+}
+.today-col {
+  margin: -2px -1px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
+.day, .period, .slot, .card { position: relative; z-index: 1; }
+
+.day { display: grid; place-items: center; font-size: 13px; font-weight: 700; color: var(--sub); }
+.day.today span { padding: 1px 9px; border-radius: 999px; background: var(--accent); color: #fff; }
+
+.period {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  text-align: center;
+  font-size: 9.5px;
+  line-height: 1.2;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.period b { margin-bottom: 2px; font-size: 15px; color: var(--text); }
+.period.cur b { color: var(--accent); }
+
+.slot { border-radius: 8px; background: var(--slot); }
+.slot.in-today { background: transparent; }
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  padding: 6px 3px 6px 4px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--c) var(--fill), var(--bg));
+  color: color-mix(in srgb, var(--c) var(--ink-mix), var(--ink-base));
+  overflow: hidden;
+}
+.card .name {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+  word-break: keep-all;
+  line-break: strict;
+  overflow-wrap: anywhere;
+}
+.card .room {
+  font-size: 9.5px;
+  line-height: 1.25;
+  color: var(--sub);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+html:lang(ko) .card .name { font-size: 10.5px; }
+.card.long { justify-content: center; }
+.card.current { box-shadow: 0 0 0 2px var(--c); }
+
+/* 履修科目 */
+h2 { margin: 26px 4px 8px; font-size: 16px; }
+
+.list {
+  list-style: none;
+  margin: 0 4px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background: var(--panel);
+}
+.list li { display: grid; grid-template-columns: 8px 1fr; column-gap: 10px; padding: 11px 0; }
+.list li + li { border-top: 1px solid var(--line); }
+.list .dot { width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--c); }
+.li-main { display: grid; gap: 1px; min-width: 0; }
+.li-name { font-weight: 700; font-size: 14.5px; }
+.li-sub { font-size: 12px; color: var(--sub); }
